@@ -10,33 +10,7 @@ let cloudDoc=null,remoteStarted=false,applyingRemote=false;
 const CATALOG=[['Keine Rückmeldung in App Spiel',6],['Keine Rückmeldung in App Training',3],['Unabgemeldet Spiel',50],['Falsches Outfit teilweise',2.5],['Trinken/Rauchen im Trikot',2],['Strafen verspätet zahlen pro Woche',2],['Rauchen in der Kabine',5],['Handyklingeln bei Besprechung',5],['Gelbe Karte wegen Dummheit/Meckern',10],['Falsches Outfit am Spieltag',5],['Diskutieren über Strafen',5],['Bier umstoßen',2],['Bier bunkern',5],['Beleidigung Mitspieler Training und Spiel',10],['Balldienst nicht ausgeführt',4],['Ball wegschießen',1],['Antrinken',2],['Unabgemeldet Training',10],['2x 20 Kontakte im Kreis',1],['20 Kontakte im Kreis',.5],['2x Tunnel',1],['Tunnel',.5],['19te verkackt',1],['Verspätung Spiel',1,true]].map((x,i)=>({id:'c'+i,name:x[0],amount:x[1],perMinute:!!x[2]}));
 const ROSTER=['Alex Tönnies','Alexander Hueck','Alexander Vassiliou','Bilal Ekin','Björn','Daniel Pfeiffer','Dennis Hegemann','Ertunc Hezer','Faisal','Felix Schmidt','Hendrik','Jannis Rixen','Linge','Lorenzo','Marius Manecki','Mark Moldenhauer','Martin','Marvin Neumaier','Mike Zörnack','Miller','Nico Frustace','Nico Neumann','Pascal','Philipp Benke','Robin Becker','Schmiddi','Simon Jagiella','Tille','Tom Bras','TST','Yannick Hoffmann'].map((n,i)=>({id:'p'+i,name:n,nick:'',no:'',pin:'1234',role:i===0?'admin':'player',mustChangePin:true,creditBeer:0,creditFine:0}));
 let db={team:{name:'VFB Westhofen',code:code(),logo:null},users:ROSTER,series:[],events:[],rsvps:{},catalog:CATALOG,charges:[],beers:[],crates:[],cash:[],me:null,verified:false},tab='home',sheet=null,edit=null,ok=false;
-function code(){return Math.random().toString(36).slice(2,8).toUpperCase()}function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8)}function init(){try{localStorage.setItem('__t','1');localStorage.removeItem('__t');ok=true}catch(e){}try{firebase.initializeApp(firebaseConfig);cloudDoc=firebase.firestore().collection('apps').doc('vfb-westhofen')}catch(e){console.error('Firebase init Fehler',e)}}function save(){if(ok){localStorage.setItem(KEY,JSON.stringify(db));}if(cloudDoc && remoteStarted && !applyingRemote){let cloudData = JSON.parse(JSON.stringify(db));delete cloudData.me;delete cloudData.verified;cloudDoc.set({db: cloudData,updatedAt: firebase.firestore.FieldValue.serverTimestamp()});}}).catch(e=>console.error('Firebase save Fehler',e))}}function load(){if(remoteStarted)return;if(!ok)return;let raw=localStorage.getItem(KEY);if(!raw)for(const k of OLD){raw=localStorage.getItem(k);if(raw)break}if(raw)try{db={...db,...JSON.parse(raw)}}catch(e){}}function startRemote(){if(!cloudDoc) return;remoteStarted = true;cloudDoc.onSnapshot(s => {if(s.exists && s.data().db){
-
-            applyingRemote = true;
-
-            let remote = s.data().db;
-
-            let myLogin = db.me;
-            let myVerified = db.verified;
-
-            db = {
-                ...db,
-                ...remote
-            };
-
-            db.me = myLogin;
-            db.verified = myVerified;
-
-            ensure();
-
-            applyingRemote = false;
-
-            render();
-
-        }else{
-            save();
-        }
-
+function code(){return Math.random().toString(36).slice(2,8).toUpperCase()}function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8)}function init(){try{localStorage.setItem('__t','1');localStorage.removeItem('__t');ok=true}catch(e){}try{firebase.initializeApp(firebaseConfig);cloudDoc=firebase.firestore().collection('apps').doc('vfb-westhofen')}catch(e){console.error('Firebase init Fehler',e)}}function save(){if(ok){localStorage.setItem(KEY,JSON.stringify(db));}if(cloudDoc && remoteStarted && !applyingRemote){let cloudData = JSON.parse(JSON.stringify(db));delete cloudData.me;delete cloudData.verified;cloudDoc.set({db: cloudData,updatedAt: firebase.firestore.FieldValue.serverTimestamp()});}}).catch(e=>console.error('Firebase save Fehler',e))}}function load(){if(remoteStarted)return;if(!ok)return;let raw=localStorage.getItem(KEY);if(!raw)for(const k of OLD){raw=localStorage.getItem(k);if(raw)break}if(raw)try{db={...db,...JSON.parse(raw)}}catch(e){}}function startRemote(){if(!cloudDoc) return;remoteStarted = true;cloudDoc.onSnapshot(s => {if(s.exists && s.data().db){applyingRemote = true;let remote = s.data().db;let myLogin = db.me;let myVerified = db.verified;db = {...db,...remote};db.me = myLogin;db.verified = myVerified;ensure();applyingRemote = false;render();}else{save();}
     }, e => console.error('Firebase sync Fehler', e));
 }function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}function money(n){return Number(n||0).toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2})+' €'}function iso(d=new Date()){let y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');return`${y}-${m}-${day}`}function fmt(d){return new Date(d+'T00:00:00').toLocaleDateString('de-DE',{weekday:'short',day:'2-digit',month:'2-digit',year:'numeric'})}function ini(n){return(n||'?').trim().split(/\s+/).map(x=>x[0]).slice(0,2).join('').toUpperCase()}function me(){return db.users.find(u=>u.id===db.me)}
 function role(u){return u?.role||(u?.admin?'admin':u?.cash?'cashier':'player')}function label(u){return{admin:'Admin',trainer:'Trainer',cashier:'Spieler/Kassenwart',player:'Spieler'}[role(u)]}function badge(u){return{admin:'admin',trainer:'trainer',cashier:'cashier',player:'playerbadge'}[role(u)]}function isAdmin(u=me()){return role(u)==='admin'}function canCash(u=me()){return['admin','trainer','cashier'].includes(role(u))}function canEvents(u=me()){return['admin','trainer'].includes(role(u))}function ensure(){db.team=db.team||{name:'VFB Westhofen',code:code()};db.users=db.users||[];db.series=db.series||[];db.events=db.events||[];db.rsvps=db.rsvps||{};db.catalog=(db.catalog&&db.catalog.length)?db.catalog:CATALOG;db.charges=db.charges||db.fines||[];db.beers=db.beers||[];db.crates=db.crates||[];db.cash=db.cash||db.deposits||[];db.users.forEach(u=>{if(!u.role)u.role=u.admin?'admin':u.cash?'cashier':'player';u.creditBeer=Number(u.creditBeer||0);u.creditFine=Number(u.creditFine||0);u.nick=u.nick||'';u.mustChangePin=!!u.mustChangePin});if(!db.series.length)db.series=[{id:uid(),weekday:2,time:'19:00',end:'20:30',place:'',note:'Training',skip:[]},{id:uid(),weekday:4,time:'19:00',end:'20:30',place:'',note:'Training',skip:[]}]}
