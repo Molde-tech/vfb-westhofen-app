@@ -14,14 +14,11 @@ const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage((payload) => {
 
-  const title =
-      payload.notification?.title || 'VFB Westhofen';
+  const title = payload.notification?.title || 'VFB Westhofen';
+  const body = payload.notification?.body || '';
 
-  const body =
-      payload.notification?.body || '';
-
-  self.registration.showNotification(title,{
-      body: body
+  self.registration.showNotification(title, {
+    body: body
   });
 
 });
