@@ -7,7 +7,7 @@
 <script>
 const KEY='vfb_app_firebase_v1',OLD=['vfb_app_v5_1_final','vfb_app_v5_final','vfb_westhofen_app_v5','vfb_westhofen_app_v4','vfb_westhofen_app_v3','vfb_westhofen_app_v2','mannschafts_app_v2'],BEER=1;
 const firebaseConfig={apiKey:"AIzaSyDXzKjeyfGAybqM015oINBPqjLk1TedE68",authDomain:"vfb-westhofen-app.firebaseapp.com",projectId:"vfb-westhofen-app",storageBucket:"vfb-westhofen-app.firebasestorage.app",messagingSenderId:"405760041608",appId:"1:405760041608:web:bd3d572508cede413bf53d"};
-const VAPID_KEY='BMN7aDqmguoruIZk2Cfa-tMjnoC1pfMTjn5Yz_xZ-gNandF2c_Rp1Lu9alzCQ3iyJourqAuQVxjt9AbE-hwlpcA';
+const VAPID_KEY="BMN7aDqmguoruIZk2Cfa-tMjnoC1pfMTjn5Yz_xZ-gNandF2c_Rp1Lu9alzCQ3iyJourqAuQVxjt9AbE-hwlpcA";
 let cloudDoc=null,remoteStarted=false,applyingRemote=false;
 function setupPush(){if(!('serviceWorker' in navigator))return alert('Push wird auf diesem Gerät/Browser nicht unterstützt.');if(!db.me)return alert('Bitte zuerst anmelden.');navigator.serviceWorker.register('firebase-messaging-sw.js').then(reg=>{let msg;try{msg=firebase.messaging()}catch(e){return alert('Push-Modul konnte nicht geladen werden.')}Notification.requestPermission().then(perm=>{if(perm!=='granted')return alert('Push-Erlaubnis wurde nicht erteilt.');msg.getToken({vapidKey:VAPID_KEY,serviceWorkerRegistration:reg}).then(token=>{if(!token)return alert('Kein Token erhalten.');let u=me();if(!u)return;u.fcmTokens=u.fcmTokens||[];if(!u.fcmTokens.includes(token)){u.fcmTokens.push(token);save();render()}alert('Erinnerungen aktiviert ✅')}).catch(e=>{console.error('Token Fehler',e);alert('Fehler beim Aktivieren der Erinnerungen.')})})}).catch(e=>{console.error('Service Worker Fehler',e);alert('Service Worker konnte nicht registriert werden.')})}
 
