@@ -12,13 +12,21 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
-messaging.onBackgroundMessage((payload) => {
+messaging.onBackgroundMessage(function(payload) {
 
-  const title = payload.notification?.title || 'VFB Westhofen';
-  const body = payload.notification?.body || '';
+  var title = "VFB Westhofen";
+  var body = "";
+
+  if (payload && payload.notification) {
+    if (payload.notification.title) {
+      title = payload.notification.title;
+    }
+    if (payload.notification.body) {
+      body = payload.notification.body;
+    }
+  }
 
   self.registration.showNotification(title, {
     body: body
   });
-
 });
