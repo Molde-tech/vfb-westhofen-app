@@ -13,10 +13,12 @@ firebase.initializeApp({
 const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage((payload) => {
-  self.registration.showNotification(
-    payload.notification?.title || 'VFB Westhofen',
-    {
-      body: payload.notification?.body || ''
-    }
-  );
+self.registration.showNotification(
+  payload.notification?.title || 'VFB Westhofen',
+  {
+    body: payload.notification?.body || '',
+    icon: './vfb-logo.png',
+    badge: './vfb-logo.png'
+  }
+);
 });
