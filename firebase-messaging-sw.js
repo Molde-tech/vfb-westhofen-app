@@ -1,9 +1,22 @@
-console.log("SW START");
+importScripts('https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/10.12.5/firebase-messaging-compat.js');
 
-self.addEventListener("install", () => {
-  console.log("INSTALL");
+firebase.initializeApp({
+  apiKey: "AIza...",
+  authDomain: "vfb-westhofen-app.firebaseapp.com",
+  projectId: "vfb-westhofen-app",
+  storageBucket: "vfb-westhofen-app.firebasestorage.app",
+  messagingSenderId: "405760041608",
+  appId: "1:405760041608:web:..."
 });
 
-self.addEventListener("activate", () => {
-  console.log("ACTIVATE");
+const messaging = firebase.messaging();
+
+messaging.onBackgroundMessage((payload) => {
+  self.registration.showNotification(
+    payload.notification?.title || 'VFB Westhofen',
+    {
+      body: payload.notification?.body || ''
+    }
+  );
 });
